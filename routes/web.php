@@ -1,5 +1,6 @@
 <?php
 
+use App\Invoice_details;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 /*
@@ -21,11 +22,16 @@ Route::get('/', function () {
 })->middleware('auth');
 
 
-
 Route::get('/home', 'HomeController@index')->name('home');
 Route::resource('sections', SectionController::class);
 Route::resource('invoices', InvoiceController::class);
 Route::resource('products', ProductController::class);
+Route::resource('details', InvoiceDetailsController::class);
+
 
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/{page}', 'AdminController@index');
+Route::get('/section/{id}', 'InvoiceController@getproducts');
+Route::get('/invoices_details/{id}', 'InvoiceController@edit');
+Route::get('view_file/{invoice_number}/{file_name}', 'InvoiceDetailsController@open_file');
+Route::get('download_file/{invoice_number}/{file_name}', 'InvoiceDetailsController@download_file');

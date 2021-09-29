@@ -261,7 +261,7 @@
                     </div>
                     <form action="products/destroy" method="POST">
                         @csrf
-                        @method('Delete')
+                        @method('HEAD')
                         <div class="modal-body">
                             <div class="form-group">
                                 <input type="hidden" name="id" id="id">

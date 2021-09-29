@@ -15,19 +15,23 @@ class CreateInvoicesTable extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            $table->string('invoice_number');
-            $table->date('invoice_date');
-            $table->date('due_date');
-            $table->string('product');
-            $table->string('section');
-            $table->string('discount');
-            $table->string('rate_vat');
-            $table->decimal('value_vat');
-            $table->decimal('total');
-            $table->string('status');
-            $table->smallInteger('value_status')->nullable();
-            $table->text('note');
-            $table->string('user');
+            $table->string('invoice_number', 50);
+            $table->date('invoice_date')->nullable();
+            $table->date('due_date')->nullable();
+            $table->string('product', 50);
+            $table->unsignedBigInteger('section_id');
+            $table->foreign('section_id')->references('id')->on('sections')->onDelete('cascade');
+            $table->decimal('amount_collection', 8, 2)->nullable();;
+            $table->decimal('amount_Commission', 8, 2);
+            $table->decimal('discount', 8, 2);
+            $table->decimal('value_vat', 8, 2);
+            $table->string('rate_vat', 999);
+            $table->decimal('total', 8, 2);
+            $table->string('status', 50);
+            $table->integer('value_status');
+            $table->text('note')->nullable();
+            $table->date('payment_date')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
