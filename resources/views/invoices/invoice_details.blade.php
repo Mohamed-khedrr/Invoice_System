@@ -122,13 +122,13 @@
                                                             <td><span
                                                                     class="badge badge-pill badge-success">{{ $invoices->status }}</span>
                                                             </td>
-                                                        @elseif($invoices->Value_Status ==2)
+                                                        @elseif($invoices->value_status ==2)
                                                             <td><span
-                                                                    class="badge badge-pill badge-danger">{{ $invoices->status }}</span>
+                                                                    class="badge badge-pill badge-warning">{{ $invoices->status }}</span>
                                                             </td>
                                                         @else
                                                             <td><span
-                                                                    class="badge badge-pill badge-warning">{{ $invoices->status }}</span>
+                                                                    class="badge badge-pill badge-danger">{{ $invoices->status }}</span>
                                                             </td>
                                                         @endif
                                                     </tr>
@@ -141,6 +141,10 @@
                                                 </tbody>
                                             </table>
                                         </div>
+
+
+
+                                        {{-- details tab --}}
                                         <div class="tab-pane" id="tab12">
                                             <table class="table center-aligned-table mb-0 table-hover"
                                                 style="text-align:center">
@@ -173,11 +177,11 @@
                                                                 </td>
                                                             @elseif($x->value_status ==2)
                                                                 <td><span
-                                                                        class="badge badge-pill badge-danger">{{ $x->status }}</span>
+                                                                        class="badge badge-pill badge-warning">{{ $x->status }}</span>
                                                                 </td>
                                                             @else
                                                                 <td><span
-                                                                        class="badge badge-pill badge-warning">{{ $x->status }}</span>
+                                                                        class="badge badge-pill badge-danger">{{ $x->status }}</span>
                                                                 </td>
                                                             @endif
                                                             <td>{{ $x->payment_date }}</td>

@@ -169,14 +169,13 @@
                                                         الدفع</a>
 
 
-                                                    {{-- archive button --}}
-                                                    <a class="dropdown-item" href="#" data-id="{{ $invoice->id }}"
-                                                        data-toggle="modal"
-                                                        data-invoice_number="{{ $invoice->invoice_number }}"
-                                                        data-toggle="modal" data-target="#Transfer_invoice"><i
-                                                            class="text-warning fas fa-exchange-alt"></i>&nbsp;&nbsp;نقل الي
-                                                        الارشيف</a>
-
+                                                    @can('ارشفة الفاتورة')
+                                                        <a class="dropdown-item" href="#"
+                                                            data-invoice_id="{{ $invoice->id }}" data-toggle="modal"
+                                                            data-target="#Transfer_invoice"><i
+                                                                class="text-warning fas fa-exchange-alt"></i>&nbsp;&nbsp;نقل الي
+                                                            الارشيف</a>
+                                                    @endcan
 
                                                     @can('طباعةالفاتورة')
                                                         <a class="dropdown-item" href="Print_invoice/{{ $invoice->id }}"><i
@@ -241,15 +240,15 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                    <form action="{{ url('archive') }}" method="POST">
-                        @csrf
-                        {{-- @method('GET') --}}
+                    <form action="{{ route('invoices.destroy', 'test') }}" method="post">
+                        {{ method_field('delete') }}
+                        {{ csrf_field() }}
                 </div>
                 <div class="modal-body">
                     هل انت متاكد من عملية الارشفة ؟
-                    <input type="hidden" name="id" id="id" value="">
-                    {{-- <input type="hidden" name="id_page" id="id_page" value="2"> --}}
-                    <input type="text" id="invoice_number" name="invoice_number" class="form-control" readonly>
+                    <input type="hidden" name="invoice_id" id="invoice_id" value="">
+                    <input type="hidden" name="id_page" id="id_page" value="2">
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
@@ -306,11 +305,9 @@
     <script>
         $('#Transfer_invoice').on('show.bs.modal', function(event) {
             var button = $(event.relatedTarget)
-            var id = button.data('id')
-            var invoice_number = button.data('invoice_number')
+            var invoice_id = button.data('invoice_id')
             var modal = $(this)
-            modal.find('.modal-body #id').val(id);
-            modal.find('.modal-body #invoice_number').val(invoice_number);
+            modal.find('.modal-body #invoice_id').val(invoice_id);
         })
     </script>
 

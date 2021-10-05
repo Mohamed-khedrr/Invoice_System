@@ -147,10 +147,6 @@
                                                     type="button">العمليات<i class="fas fa-caret-down ml-1"></i></button>
                                                 <div class="dropdown-menu tx-13">
 
-                                                    {{-- edit button --}}
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('invoices.edit', $invoice->id) }}">تعديل
-                                                        الفاتورة</a>
 
                                                     {{-- deleting button --}}
                                                     <a class="dropdown-item" href="#"
@@ -160,13 +156,6 @@
                                                             class="text-danger fas fa-trash-alt"></i>&nbsp;&nbsp;حذف
                                                         الفاتورة</a>
 
-                                                    {{-- payment button --}}
-                                                    <a class="dropdown-item"
-                                                        href="{{ url('status_show', $invoice) }}"><i
-                                                            class=" text-success fas
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    fa-money-bill"></i>&nbsp;&nbsp;تغير
-                                                        حالة
-                                                        الدفع</a>
 
 
                                                     {{-- archive button --}}
@@ -175,7 +164,7 @@
                                                         data-invoice_number="{{ $invoice->invoice_number }}"
                                                         data-toggle="modal" data-target="#Transfer_invoice"><i
                                                             class="text-warning fas fa-exchange-alt"></i>&nbsp;&nbsp;نقل الي
-                                                        الارشيف</a>
+                                                        الفواتير</a>
 
 
                                                     @can('طباعةالفاتورة')
@@ -231,7 +220,7 @@
     </div>
 
 
-    <!-- ارشيف الفاتورة -->
+    <!-- الغاء ارشيف الفاتورة -->
     <div class="modal fade" id="Transfer_invoice" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -241,14 +230,13 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                    <form action="{{ url('archive') }}" method="POST">
+                    <form action="{{ url('unArchive') }}" method="POST">
                         @csrf
                         {{-- @method('GET') --}}
                 </div>
                 <div class="modal-body">
                     هل انت متاكد من عملية الارشفة ؟
                     <input type="hidden" name="id" id="id" value="">
-                    {{-- <input type="hidden" name="id_page" id="id_page" value="2"> --}}
                     <input type="text" id="invoice_number" name="invoice_number" class="form-control" readonly>
                 </div>
                 <div class="modal-footer">

@@ -5,10 +5,14 @@ namespace App\Http\Controllers;
 use App\Invoice;
 use App\invoice_attachments;
 use App\Invoice_details;
+use App\Notifications\add_invoice;
 use App\Section;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Notification;
 
 class InvoiceController extends Controller
 {
@@ -56,7 +60,7 @@ class InvoiceController extends Controller
             'total' => $request->Total,
             'note' => $request->note,
             'status' => 'غير مدفوعة',
-            'value_status' => '2'
+            'value_status' => '3'
         ]);
 
         $invoice_id = Invoice::latest()->first()->id;
@@ -67,7 +71,7 @@ class InvoiceController extends Controller
             'section' => $request->Section,
             'note' => $request->note,
             'user' => (Auth::user()->name),
-            'value_status' => 2,
+            'value_status' => '3',
             'status' => 'غير مدفوعة'
         ]);
 
@@ -80,6 +84,9 @@ class InvoiceController extends Controller
             'creared_by' => (Auth::user()->name),
             'invoice_id' => $invoice_id
         ]);
+
+        $user = User::first();
+        Notification::send($user, new add_invoice($invoice_id));
 
         $request->pic->move(public_path('Attachments/' . $request->invoice_number), $file_name);
         return redirect()->route('invoices.index');
@@ -104,10 +111,9 @@ class InvoiceController extends Controller
      */
     public function edit($id)
     {
-        $invoices = Invoice::find($id);
-        $details = Invoice_details::where('id_invoice', $id)->get();
-        $attachments = invoice_attachments::where('invoice_id', $id)->get();
-        return view('invoices/invoice_details', compact('invoices', 'details', 'attachments'));
+        $invoice = Invoice::findOrFail($id);
+        $sections = Section::all();
+        return view('invoices/edit_invoice', compact('sections', 'invoice'));
     }
 
     /**
@@ -119,7 +125,37 @@ class InvoiceController extends Controller
      */
     public function update(Request $request, Invoice $invoice)
     {
-        //
+        Invoice_details::where('invoice_number', $invoice->invoice_number)->update([
+            'invoice_number' => $request->invoice_number
+        ]);
+        invoice_attachments::where('invoice_number', $invoice->invoice_number)->update([
+            'invoice_number' => $request->invoice_number
+        ]);
+
+        $invoice->invoice_number =  $request->invoice_number;
+        $invoice->invoice_date = $request->invoice_Date;
+        $invoice->due_date = $request->Due_date;
+        $invoice->product  = $request->product;
+        $invoice->section_id  = $request->Section;
+        $invoice->amount_collection  = $request->Amount_collection;
+        $invoice->amount_Commission  = $request->Amount_Commission;
+        $invoice->discount =  $request->Discount;
+        $invoice->value_vat =  $request->Value_VAT;
+        $invoice->rate_vat  = $request->Rate_VAT;
+        $invoice->total =  $request->Total;
+        $invoice->note =  $request->note;
+        $invoice->value_status = $request->value_status;
+
+        if ($request->value_status == 1) {
+            $invoice->status = 'مدفوعة';
+        } elseif ($request->value_status == 2) {
+            $invoice->status = 'مدفوعة جزئيا';
+        } elseif ($request->value_status == 3) {
+            $invoice->status = 'غير مدفوعة';
+        }
+
+        $invoice->save();
+        return redirect()->route('invoices.index');
     }
 
     /**
@@ -128,9 +164,17 @@ class InvoiceController extends Controller
      * @param  \App\Invoice  $invoice
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Invoice $invoice)
+    public function destroy(Request $request)
     {
-        //
+        Invoice::findOrFail($request->id)->forceDelete();
+        $attach = invoice_attachments::where('invoice_id', $request->id)->first();
+
+        if (!empty($attach)) {
+            Storage::disk('public_uploads')->deleteDirectory($attach->invoice_number);
+        }
+
+
+        return redirect()->route('invoices.index');
     }
 
 
@@ -138,5 +182,81 @@ class InvoiceController extends Controller
     {
         $products = DB::table("products")->where("section_id", $id)->pluck("product_name", "id");
         return json_encode($products);
+    }
+
+
+
+    public function status_show(Invoice $invoice)
+    {
+        $sections = Section::all();
+
+        return view('invoices/status_update', compact('invoice', 'sections'));
+    }
+
+    public function update_status(Request $request, $invoice)
+    {
+        $invoice = Invoice::findOrFail($invoice);
+        $value_status = $request->value_status;
+        if ($value_status == 1) {
+            $invoice->status = 'مدفوعة';
+        } elseif ($value_status == 2) {
+            $invoice->status = 'مدفوعة جزئيا';
+        } elseif ($value_status == 3) {
+            $invoice->status = 'غير مدفوعة';
+        }
+        $invoice->value_status = $value_status;
+        $invoice->payment_date = $request->payment_date;
+        $invoice->save();
+
+        Invoice_details::create([
+            'id_invoice' => $invoice->id,
+            'invoice_number' => $invoice->invoice_number,
+            'product' => $invoice->product,
+            'section' => $invoice->section_id,
+            'user' => (Auth::user()->name),
+            'value_status' => $invoice->value_status,
+            'status' => $invoice->status,
+            'payment_date' => $request->payment_date
+        ]);
+
+        return redirect()->route('invoices.index');
+    }
+
+
+    public function paid()
+    {
+        $invoices = Invoice::where('value_status', '1')->get();
+        return view('invoices/paid_invoices', compact('invoices'));
+    }
+
+    public function unpaid()
+    {
+        $invoices = Invoice::where('value_status', '3')->get();
+        return view('invoices/paid_invoices', compact('invoices'));
+    }
+
+    public function part_paid()
+    {
+        $invoices = Invoice::where('value_status', '2')->get();
+        return view('invoices/part_paid', compact('invoices'));
+    }
+
+    public function archive(Request $request)
+    {
+        Invoice::findOrFail($request->id)->delete();
+        return redirect()->back();
+    }
+
+    public function show_archive()
+    {
+        $invoices = Invoice::onlyTrashed()->get();
+        return view('invoices/invoice_archive', compact('invoices'));
+    }
+
+
+    public function unArchive(Request $request)
+    {
+        Invoice::withTrashed()->findOrFail($request->id)->restore();
+        return redirect()->back();
     }
 }

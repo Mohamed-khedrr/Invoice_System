@@ -7,6 +7,7 @@ use App\Invoice_details;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use App\Invoice;
 
 class InvoiceDetailsController extends Controller
 {
@@ -15,9 +16,12 @@ class InvoiceDetailsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($id)
     {
-        //
+        $invoices = Invoice::find($id);
+        $details = Invoice_details::where('id_invoice', $id)->get();
+        $attachments = invoice_attachments::where('invoice_id', $id)->get();
+        return view('invoices/invoice_details', compact('invoices', 'details', 'attachments'));
     }
 
     /**
