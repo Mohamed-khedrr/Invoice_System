@@ -79,7 +79,7 @@
                                     <!--placeholder-->
                                     <option value="" selected disabled>حدد القسم</option>
                                     @foreach ($sections as $section)
-                                        <option value="{{ $section->id }}"> {{ $section->section_name }}</option>
+                                        <option value="{{ $section->id }}"> {{ $section->section_name }} </option>
                                     @endforeach
                                 </select>
                             </div>

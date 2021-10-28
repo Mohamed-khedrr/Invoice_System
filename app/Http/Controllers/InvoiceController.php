@@ -46,6 +46,23 @@ class InvoiceController extends Controller
      */
     public function store(Request $request)
     {
+        // $validate = $request->validate([
+        //     'invoice_number' => "required",
+        //     'invoice_date' => "required",
+        //     'due_date' => "required",
+        //     'product' => "required",
+        //     'section_id' => "required",
+        //     'amount_collection' => "required",
+        //     'amount_Commission' => "required",
+        //     'discount' => "required",
+        //     'value_vat' => "required",
+        //     'rate_vat' => "required",
+        //     'total' => "required",
+        //     'note' => "required"
+
+        // ]);
+
+
         Invoice::create([
             'invoice_number' => $request->invoice_number,
             'invoice_date' => $request->invoice_Date,
@@ -85,10 +102,21 @@ class InvoiceController extends Controller
             'invoice_id' => $invoice_id
         ]);
 
-        $user = User::first();
-        Notification::send($user, new add_invoice($invoice_id));
 
         $request->pic->move(public_path('Attachments/' . $request->invoice_number), $file_name);
+
+        // $user = User::first();
+        // Notification::send($user, new add_invoice($invoice_id));
+
+        $user = user::get();
+        // $user = Auth::user();
+        $invoice = Invoice::latest()->first();
+        // $user->notification(new Add_invoice($invoice));
+        Notification::send($user, new Add_invoice($invoice));
+
+
+
+        session()->flash('add_invoice', 'تم حفظ الفاتورة بنجاح');
         return redirect()->route('invoices.index');
     }
 
@@ -155,6 +183,7 @@ class InvoiceController extends Controller
         }
 
         $invoice->save();
+        session()->flash('update', 'تم التعديل');
         return redirect()->route('invoices.index');
     }
 
@@ -173,7 +202,7 @@ class InvoiceController extends Controller
             Storage::disk('public_uploads')->deleteDirectory($attach->invoice_number);
         }
 
-
+        session()->flash('delete_invoice', 'تم الحذف');
         return redirect()->route('invoices.index');
     }
 
@@ -218,7 +247,7 @@ class InvoiceController extends Controller
             'status' => $invoice->status,
             'payment_date' => $request->payment_date
         ]);
-
+        session()->flash('Status_Update', 'تم تعديل حالة الدفع ');
         return redirect()->route('invoices.index');
     }
 

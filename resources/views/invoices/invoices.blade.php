@@ -79,10 +79,10 @@
                             href="{{ route('invoices.create') }}">اضافة فاتورة</a>
                     </div>
 
-                    @can('تصدير EXCEL')
+                    {{-- @can('تصدير EXCEL')
                         <a class="modal-effect btn btn-sm btn-primary" href="{{ url('export_invoices') }}"
                             style="color:white"><i class="fas fa-file-download"></i>&nbsp;تصدير اكسيل</a>
-                    @endcan
+                    @endcan --}}
 
                 </div>
                 <div class="card-body">
@@ -299,7 +299,6 @@
             var modal = $(this)
             modal.find('.modal-body #invoice_id').val(invoice_id);
             modal.find('.modal-body #invoice_number').val(invoice_number);
-
         })
     </script>
 

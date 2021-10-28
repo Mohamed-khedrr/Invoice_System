@@ -18,9 +18,9 @@ use Illuminate\Support\Facades\Auth;
 Auth::routes();
 //Auth::routes(['register' => false]);
 
-Route::get('/', function () {
-    return view('index');
-})->middleware('auth');
+Route::get('/', 'HomeController@index')->middleware('auth');
+
+
 
 
 Route::get('/home', 'HomeController@index')->name('home');
@@ -41,11 +41,22 @@ Route::get('update_status/{invoice}', 'InvoiceController@update_status')->name('
 
 
 Route::get('/invoices_details/{id}', 'InvoiceDetailsController@index');
+
 Route::get('view_file/{invoice_number}/{file_name}', 'InvoiceDetailsController@open_file');
 Route::get('download_file/{invoice_number}/{file_name}', 'InvoiceDetailsController@download_file');
 
 
-Route::get('/home', 'HomeController@index')->name('home');
+
+
+Route::get('mark_all', 'UserController@mark_all');
+Route::group(['middleware' => ['auth']], function () {
+    Route::resource('roles', 'RoleController');
+    Route::resource('users', 'UserController');
+});
+
+
+
+
 
 
 Route::get('/{page}', 'AdminController@index');
